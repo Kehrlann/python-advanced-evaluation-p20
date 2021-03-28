@@ -40,6 +40,110 @@ the target board is
   permettant de résoudre le puzzle pour un *board*, c'est-à-dire permettant de
   reconstituer le *board* cible
 
+## solvabilité
+
+il est très important de réaliser que toutes les configurations ne sont pas atteignables
+
+surtout si vous utilisez un algorithme un peu rustique, comme celui qui est suggéré ici
+(et qui, à nouveau n'est pas le seul et pas forcément le meilleur); en effet cet
+algorithme va mettre **très longtemps** à ne **pas arriver** à résoudre un problème
+insoluble
+
+du coup vous êtes invités à caractériser les configurations qui sont atteignables, et à
+implémenter un code qui détermine si une configuration est atteignable/solvable
+
+**indice** parmi les 9! configurations possibles, la moitié d'entre elles sont
+atteignables
+
+## ce qu'il faut faire exactement
+
+### fonctionnement
+
+* le point d'entrée doit se trouver dans `puzzle8/cli.py`
+* on doit pouvoir l'invoquer en lui passant en argument deux noms de fichiers
+  * le premier, lu par votre programme, et qui contient une configuration cible (au format
+    textuel simple qu'on a utilisé jusqu'ici, dans lequel le trou est matérialisé par `0`
+    ou `-` ou `.`)
+  * le second, écrit par votre programme, contient le résultat (voir plus bas)
+
+  voyez par exemple le fichier fourni `simple/simple.txt`
+
+  on doit pouvoir invoquer votre programme comme ceci
+
+  ```shell
+  python puzzle8/cli.py samples/simple.txt samples/simple.chain
+  ```
+
+  ce qui doit avoir pour effet de créer ou d'écraser le second fichier avec votre
+  résultat
+
+### format de sortie
+
+selon les cas :
+
+* si la configuration de départ est atteignable, vous devez produire quelque chose comme
+  ceci, avec les étapes pour passer de la configuration de départ (qui apparait en
+  premier) à la configuration cible, qui doit apparaitre en dernier; cet exemple
+  est dans `samples/simple.chain`
+
+```console
+1 2 3
+4 8 5
+7 6 -
+
+1 2 3
+4 8 5
+7 - 6
+
+1 2 3
+4 - 5
+7 8 6
+
+1 2 3
+4 5 -
+7 8 6
+
+1 2 3
+4 5 6
+7 8 -
+---
+{"reachable": true, "iterations": 5, "duration": 0.00013780593872070312, "priority": "manhattan", "nb_moves": 4}
+```
+
+* si la configuration n'est pas atteignable, votre fichier de sortie devra ressembler
+à ceci; cet exemple est dans `samples/unreachable.chain` :
+
+```console
+2 1 3
+4 8 5
+7 6 -
+---
+{"reachable": false, "iterations": 0, "duration": 6.9141387939453125e-06, "priority": "manhattan", "nb_moves": 0}
+```
+
+### ligne de synthèse
+
+comme vous le voyez dans les deux cas le fichier doit se terminer par une ligne qui
+contient, exposé au format JSON, un dictionnaire
+
+ce qui est requis (et vérifié par les tests automatiques), ce sont :
+
+* la clé `reachable` qui indique si la configuration est atteignable ou pas
+* la clé `nb_moves` qui donne le nombre de mouvements dans la chaine solution
+
+vous pouvez, comme dans l'exemple, ajouter d'autres clés à ce dictionnaire, si vous êtes
+par exemple intéressés à faire des statistiques sur la performance de votre algorithme
+
+### performances
+
+toutes les configurations de départ ne présentent pas, bien sûr, la même complexité, mais
+dans le cas le pire votre algorithme ne doit **pas mettre plus de 5 secondes** pour
+converger vers une réponse; ce point est pris en compte par les tests automatiques
+
+de la même façon on impose que toutes les solutions se composent de **moins de 36 coups**
+pour reconstituer la grille de départ (`nb_moves <= 36`)
+
+
 ## comment s'y prendre
 
 pour résoudre le puzzle, vous avez le choix de la méthode; une technique communément
@@ -115,21 +219,6 @@ dans la queue un état qui créerait un demi-tour, c'est-à-dire par exemple
 
  précédent      état       ignorer
 ```
-
-## solvabilité
-
-il est très important de réaliser que toutes les configurations ne sont pas atteignables
-
-surtout si vous utilisez un algorithme un peu rustique, comme celui qui est suggéré ici
-(et qui, à nouveau n'est pas le seul et pas forcément le meilleur); en effet cet
-algorithme va mettre **très longtemps** à ne **pas arriver** à résoudre un problème
-insoluble
-
-du coup vous êtes invités à caractériser les configurations qui sont atteignables, et à
-implémenter un code qui détermine si une configuration est atteignable/solvable
-
-**indice** parmi les 9! configurations possibles, la moitié d'entre elles sont
-atteignables
 
 ## ce qu'il faut faire exactement
 
