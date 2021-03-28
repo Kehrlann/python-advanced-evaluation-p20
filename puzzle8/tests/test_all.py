@@ -1,6 +1,7 @@
 # it is required to install separately the pytest-timeout plugin
 # pip install pytest-timeout
 
+from itertools import islice
 import pytest
 
 """
@@ -11,23 +12,26 @@ NOT suitable for writing a solver
 import json
 import subprocess
 
-N = 3 # number of rows
-M = 3 # number of columns
+N = 3  # number of rows
+M = 3  # number of columns
 
 TARGET = [1, 2, 3, 4, 5, 6, 7, 8, 0]
 
 MAX_MOVES = 36
 
+
 def is_empty_line(line):
     return line.strip() == ''
+
+
 def is_sep_line(line):
     return set(line.strip()) == set('-')
 
-from itertools import islice
 
 def check_size(b):
     if len(set(b)) != N*M:
         raise ValueError(f"wrong size with input {b}")
+
 
 def normalize(token):
     def _normalize(token):
@@ -41,12 +45,15 @@ def normalize(token):
     else:
         raise ValueError(f"cannot normalize token {token}")
 
+
 def build_board_from_tokens(chunk):
     return list(normalize(x) for x in chunk)
+
 
 def build_board_from_lines(lines):
     return build_board_from_tokens(
         x for line in lines for x in line.replace('  ', ' 0 ').split())
+
 
 def read_board(filename):
     with open(filename) as feed:
@@ -56,7 +63,7 @@ def read_board(filename):
 def are_neighbours(b1, b2):
     check_size(b1)
     check_size(b2)
-    misses = [i for i in range(N*M) if b1[i]!=b2[i]]
+    misses = [i for i in range(N*M) if b1[i] != b2[i]]
     if len(misses) != 2:
         return False
     i1, i2 = misses
@@ -108,7 +115,8 @@ def check_chain(input_filename, chain_filename, reachable, max_moves):
             nb_moves = 0
 
             while reading:
-                chain1, chain2 = chain2, build_board_from_lines(islice(feed, N))
+                chain1, chain2 = chain2, build_board_from_lines(
+                    islice(feed, N))
                 nb_moves += 1
                 # check move chain consistency
                 assert are_neighbours(chain1, chain2)
@@ -160,6 +168,7 @@ def run_and_check_range(prefix, beg, end, reachable=True, max_moves=MAX_MOVES):
 def test_unreachable_0():
     run_and_check_range("u30", 0, 20, reachable=False)
 
+
 @pytest.mark.timeout(timeout=10, method='thread')
 def test_unreachable_1():
     run_and_check_range("u30", 20, 40, reachable=False)
@@ -167,41 +176,57 @@ def test_unreachable_1():
 # reachables
 
 # 1 - 6 moves
+
+
 @pytest.mark.timeout(timeout=6, method='thread')
 def regular_06():
     run_and_check_range("r06", 0, 10, reachable=True, max_moves=9)
 
 # .. 09 moves
+
+
 @pytest.mark.timeout(timeout=9, method='thread')
 def test_regular_09():
     run_and_check_range("r09", 0, 10, reachable=True, max_moves=12)
 
 # .. 12 moves
+
+
 @pytest.mark.timeout(timeout=12, method='thread')
 def regular_12():
     run_and_check_range("r12", 0, 10, reachable=True, max_moves=16)
 
 # .. 15 moves
+
+
 @pytest.mark.timeout(timeout=15, method='thread')
 def test_regular_15():
     run_and_check_range("r15", 0, 10, reachable=True, max_moves=19)
 
 # .. 18 moves
+
+
 @pytest.mark.timeout(timeout=18, method='thread')
 def regular_18():
     run_and_check_range("r18", 0, 10, reachable=True, max_moves=22)
 
 # .. 21 moves
+
+
 @pytest.mark.timeout(timeout=21, method='thread')
 def test_regular_21():
     run_and_check_range("r21", 0, 10, reachable=True, max_moves=26)
 
 # .. 24 moves
+
+
 @pytest.mark.timeout(timeout=24, method='thread')
 def regular_24():
     run_and_check_range("r24", 0, 10, reachable=True, max_moves=29)
 
 # .. 27 moves
+
+
 @pytest.mark.timeout(timeout=27, method='thread')
 def test_regular_27():
     run_and_check_range("r27", 0, 10, reachable=True, max_moves=32)
@@ -214,13 +239,16 @@ def test_regular_27():
 def test_speed_30():
     run_and_check_range("r30", 0, 10)
 
+
 @pytest.mark.timeout(timeout=25, method='thread')
 def test_speed_25():
     run_and_check_range("r30", 0, 10)
 
+
 @pytest.mark.timeout(timeout=20, method='thread')
 def test_speed_20():
     run_and_check_range("r30", 0, 10)
+
 
 @pytest.mark.timeout(timeout=15, method='thread')
 def test_speed_15():
